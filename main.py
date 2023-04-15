@@ -20,9 +20,6 @@ TWITTER_API_CUSTOMER_SECURE = config.env['TWITTER_API_CUSTOMER_SECURE']
 TWITTER_API_TOKEN           = config.env['TWITTER_API_TOKEN']
 TWITTER_API_TOKEN_SECURE    = config.env['TWITTER_API_TOKEN_SECURE']
 
-### AI Context
-context = list()
-
 ### OpenAI 
 app = App(token = SLACK_BOT_TOKEN)
 openai.api_key  = OPENAI_API_TOKEN
@@ -45,7 +42,6 @@ def message_learn(message, say):
       character += "・ "+tweet['text']+"\n"
     name = tweet['user']['name']
     data = ("登場人物「{}」の設定を教えます。以下に続くセリフ\n{}これらは全て「{}」のものです。「{}」になりきってお話してください。".format(name,character,name,name))
-    context.append(data)
     say("learned from {} on twitter! {}".format(TWITTER_SCREEN_NAME,data))
   else:
     say("nothing to learn.")
@@ -63,19 +59,17 @@ def get_timeline(num:int):
 @app.event('message')
 def handle_message(event, say):
   message = event['text']
-  response = generate_response(message, context)
-  context.append(response)
+  response = generate_response(message)
   say(response)
 
 ### Generrate from OpenAI
 @decorators.exception
-def generate_response(message,context=None):
+def generate_response(message):
   response = openai.Completion.create(
     engine      = OPENAI_ENGINE,
     prompt      = message,
-    max_tokens  = 1024,
+    max_tokens  = 100,
     temperature = 0.5,
-    context     = context
   )
   response_text = response['choices'][0]['text']
   return response_text
