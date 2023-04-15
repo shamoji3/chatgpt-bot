@@ -1,5 +1,5 @@
 import json
-import config
+from   common import config
 from   requests_oauthlib import OAuth1Session
 
 class Twitter:
@@ -24,13 +24,13 @@ class Twitter:
     else:
       return [{"code": r.status_code}]
 
-### main for test
+### Unit Test
 if __name__ == '__main__':
   tw = Twitter(
-    config.TWITTER_API_CUSTOMER,
-    config.TWITTER_API_CUSTOMER_SECURE,
-    config.TWITTER_API_TOKEN,
-    config.TWITTER_API_TOKEN_SECURE
+    config.env['TWITTER_API_CUSTOMER'],
+    config.env['TWITTER_API_CUSTOMER_SECURE'],
+    config.env['TWITTER_API_TOKEN'],
+    config.env['TWITTER_API_TOKEN_SECURE'],
     )
-  print(config.TWITTER_SCREEN_NAME)
-  print(tw.timeline(config.TWITTER_SCREEN_NAME, 1))
+  print(config.env['TWITTER_SCREEN_NAME'])
+  print(tw.timeline(config.env['TWITTER_SCREEN_NAME'], 1))
