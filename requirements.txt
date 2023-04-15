@@ -1,0 +1,6 @@
+python-dotenv
+requests
+openai
+slack_bolt
+python-dotenv
+requests_oauthlib
