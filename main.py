@@ -4,13 +4,9 @@ import twitter
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 
-#import config
-from common import config
+from common import config,decorators
 
 logging.basicConfig(level=logging.WARN)
-
-app = App(token = config.SLACK_BOT_TOKEN)
-openai.api_key  = config.OPENAI_API_TOKEN
 
 ### stick environment variables to global
 APP_ENV                     = config.env['APP_ENV']
@@ -23,6 +19,10 @@ TWITTER_API_CUSTOMER        = config.env['TWITTER_API_CUSTOMER']
 TWITTER_API_CUSTOMER_SECURE = config.env['TWITTER_API_CUSTOMER_SECURE']
 TWITTER_API_TOKEN           = config.env['TWITTER_API_TOKEN']
 TWITTER_API_TOKEN_SECURE    = config.env['TWITTER_API_TOKEN_SECURE']
+
+### OpenAI 
+app = App(token = SLACK_BOT_TOKEN)
+openai.api_key  = OPENAI_API_TOKEN
 
 ### Basic work
 @app.message("hello")
@@ -42,18 +42,18 @@ def message_learn(message, say):
       character += "・ "+tweet['text']+"\n"
     name = tweet['user']['name']
     data = ("登場人物「{}」の設定を教えます。以下に続くセリフ\n{}これらは全て「{}」のものです。「{}」になりきってお話してください。".format(name,character,name,name))
-    say("learned from {} on twitter! {}".format(config.TWITTER_SCREEN_NAME,data))
+    say("learned from {} on twitter! {}".format(TWITTER_SCREEN_NAME,data))
   else:
     say("nothing to learn.")
 
 def get_timeline(num:int):
   tw = twitter.Twitter(
-    config.TWITTER_API_CUSTOMER,
-    config.TWITTER_API_CUSTOMER_SECURE,
-    config.TWITTER_API_TOKEN,
-    config.TWITTER_API_TOKEN_SECURE
+    TWITTER_API_CUSTOMER,
+    TWITTER_API_CUSTOMER_SECURE,
+    TWITTER_API_TOKEN,
+    TWITTER_API_TOKEN_SECURE
   )
-  return tw.timeline(config.TWITTER_SCREEN_NAME, num)
+  return tw.timeline(TWITTER_SCREEN_NAME, num)
 
 ### Message
 @app.event('message')
@@ -67,7 +67,7 @@ def handle_message(event, say):
 def generate_response(message):
   content  = message
   response = openai.Completion.create(
-    engine      = config.OPENAI_ENGINE,
+    engine      = OPENAI_ENGINE,
     prompt      = content,
     max_tokens  = 1024,
     temperature = 0.5
@@ -76,5 +76,5 @@ def generate_response(message):
   return response_text
 
 if __name__ == "__main__":
-  handler = SocketModeHandler(app=app, app_token=config.SLACK_APP_TOKEN)
+  handler = SocketModeHandler(app=app, app_token=SLACK_APP_TOKEN)
   handler.start()
